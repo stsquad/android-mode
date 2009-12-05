@@ -39,6 +39,11 @@
   :type 'string
   :group 'android-mode)
 
+(defcustom android-mode-sdcard 'nil
+  "Default SD card to mount with AVD."
+  :type 'string
+  :group 'android-mode)
+
 (defun android-list-avd ()
   "List of Android Virtual Devices installed on local machine."
   (let* ((command (concat android-mode-sdk-dir "/tools/android list avd"))
@@ -65,7 +70,12 @@
   (interactive)
   (let ((avd (or (and (not (string= android-mode-avd "")) android-mode-avd)
                  (completing-read "Android Virtual Device: " (android-list-avd)))))
-    (unless (android-start-exclusive-command (concat "*android-emulator-" avd "*") (concat android-mode-sdk-dir "/tools/emulator -avd " avd))
+    (unless
+	(android-start-exclusive-command
+	 (concat "*android-emulator-" avd "*")
+	 (concat android-mode-sdk-dir "/tools/emulator -avd " avd)
+	 (if android-mode-sdcard
+	     (concat "-sdcard " android-mode-sdcard)))
       (message (concat "emulator " avd " already running")))))
 
 (defun android-start-ddms ()
